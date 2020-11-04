@@ -2,7 +2,9 @@ package flightassistant.controllers;
 
 import flightassistant.domain.MyOrder;
 import flightassistant.repositories.MyOrderRepository;
+import flightassistant.service.MyOrderService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,9 +13,12 @@ import java.util.List;
 @RequestMapping("order")
 public class MyOrderController {
     private final MyOrderRepository myOrderRepository;
+    private final MyOrderService myOrderService;
 
-    public MyOrderController(MyOrderRepository myOrderRepository) {
+    @Autowired
+    public MyOrderController(MyOrderRepository myOrderRepository, MyOrderService myOrderService) {
         this.myOrderRepository = myOrderRepository;
+        this.myOrderService = myOrderService;
     }
 
     @GetMapping
@@ -28,7 +33,8 @@ public class MyOrderController {
 
     @PostMapping
     public MyOrder create(@RequestBody MyOrder myOrder) {
-        return myOrderRepository.save(myOrder);
+
+        return myOrderService.create(myOrder);
     }
 
     @PutMapping("{id}")

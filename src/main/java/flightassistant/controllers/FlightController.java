@@ -2,7 +2,9 @@ package flightassistant.controllers;
 
 import flightassistant.domain.Flight;
 import flightassistant.repositories.FlightRepository;
+import flightassistant.service.FlightService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,10 +13,14 @@ import java.util.List;
 @RequestMapping("flight")
 public class FlightController {
     private final FlightRepository flightRepository;
+    private final FlightService flightService;
 
-    public FlightController(FlightRepository flightRepository) {
+    public FlightController(FlightRepository flightRepository, FlightService flightService) {
         this.flightRepository = flightRepository;
+        this.flightService = flightService;
     }
+
+    @Autowired
 
     @GetMapping
     public List<Flight> list() {
@@ -28,7 +34,8 @@ public class FlightController {
 
     @PostMapping
     public Flight create(@RequestBody Flight flight) {
-        return flightRepository.save(flight);
+
+        return flightService.create(flight);
     }
 
     @PutMapping("{id}")
@@ -36,6 +43,7 @@ public class FlightController {
         BeanUtils.copyProperties(flight, flightFromDb, "id");
         return flightRepository.save(flightFromDb);
     }
+
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable("id") Flight flight) {
