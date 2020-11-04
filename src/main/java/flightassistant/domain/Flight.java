@@ -1,18 +1,25 @@
 package flightassistant.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table
 @ToString(of = {"id", "price", "numberOfSeats", "pilots", "plane", "startPoint", "endPoint"})
 @EqualsAndHashCode(of = {"id"})
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,13 +39,16 @@ public class Flight {
             inverseJoinColumns = {@JoinColumn(name = "pilot_id")})
     private Set<Pilot> pilots = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne
     @JoinColumn(name = "startingPoint_id", referencedColumnName = "id")
     private City startingPoint;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne
     @JoinColumn(name = "finishPoint_id", referencedColumnName = "id")
     private City finishPoint;
+
+    @OneToMany(mappedBy = "flight", orphanRemoval = true)
+    private List<MyOrder> orders;
 
     public Long getId() {
         return id;
@@ -103,4 +113,5 @@ public class Flight {
     public void setFinishPoint(City finishPoint) {
         this.finishPoint = finishPoint;
     }
+
 }
