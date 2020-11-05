@@ -5,7 +5,9 @@ import flightassistant.repositories.FlightRepository;
 import flightassistant.service.FlightService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,7 +31,13 @@ public class FlightController {
 
     @GetMapping("{id}")
     public Flight getOne(@PathVariable("id") Flight flight) {
-        return flight;
+        if (flight != null) {
+            return flight;
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, Flight.class.getSimpleName() + " not found"
+            );
+        }
     }
 
     @PostMapping
@@ -40,14 +48,26 @@ public class FlightController {
 
     @PutMapping("{id}")
     public Flight update(@PathVariable("id") Flight flightFromDb, @RequestBody Flight flight) {
-        BeanUtils.copyProperties(flight, flightFromDb, "id");
-        return flightRepository.save(flightFromDb);
+        try {
+            BeanUtils.copyProperties(flight, flightFromDb, "id");
+            return flightRepository.save(flightFromDb);
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, Flight.class.getSimpleName() + " not found"
+            );
+        }
     }
 
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable("id") Flight flight) {
-        flightRepository.delete(flight);
+        if (flight != null) {
+            flightRepository.delete(flight);
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, Flight.class.getSimpleName() + " not found"
+            );
+        }
 
     }
 }

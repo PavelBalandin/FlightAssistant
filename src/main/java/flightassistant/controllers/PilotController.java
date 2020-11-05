@@ -6,7 +6,9 @@ import flightassistant.domain.Views;
 import flightassistant.repositories.PilotRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,7 +31,13 @@ public class PilotController {
     @GetMapping("{id}")
     @JsonView(Views.IdProperty.class)
     public Pilot getOne(@PathVariable("id") Pilot pilot) {
-        return pilot;
+        if (pilot != null) {
+            return pilot;
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, Pilot.class.getSimpleName() + " not found"
+            );
+        }
     }
 
     @PostMapping
@@ -41,13 +49,25 @@ public class PilotController {
     @PutMapping("{id}")
     @JsonView(Views.IdProperty.class)
     public Pilot update(@PathVariable("id") Pilot pilotFromDb, @RequestBody Pilot pilot) {
-        BeanUtils.copyProperties(pilot, pilotFromDb, "id");
-        return pilotRepository.save(pilotFromDb);
+        try {
+            BeanUtils.copyProperties(pilot, pilotFromDb, "id");
+            return pilotRepository.save(pilotFromDb);
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, Pilot.class.getSimpleName() + " not found"
+            );
+        }
     }
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable("id") Pilot pilot) {
-        pilotRepository.delete(pilot);
+        if (pilot != null) {
+            pilotRepository.delete(pilot);
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, Pilot.class.getSimpleName() + " not found"
+            );
+        }
 
     }
 }

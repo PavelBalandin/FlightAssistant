@@ -4,7 +4,9 @@ import flightassistant.domain.City;
 import flightassistant.repositories.CityRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -25,7 +27,13 @@ public class CityController {
 
     @GetMapping("{id}")
     public City getOne(@PathVariable("id") City city) {
-        return city;
+        if (city != null) {
+            return city;
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, City.class.getSimpleName() + " not found"
+            );
+        }
     }
 
     @PostMapping
@@ -38,13 +46,25 @@ public class CityController {
             @PathVariable("id") City cityFromDb,
             @RequestBody City city
     ) {
-        BeanUtils.copyProperties(city, cityFromDb, "id");
-        return cityRepository.save(cityFromDb);
+        try {
+            BeanUtils.copyProperties(city, cityFromDb, "id");
+            return cityRepository.save(cityFromDb);
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, City.class.getSimpleName() + " not found"
+            );
+        }
     }
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable("id") City city) {
-        cityRepository.delete(city);
+        if (city != null) {
+            cityRepository.delete(city);
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, City.class.getSimpleName() + " not found"
+            );
+        }
 
     }
 }
