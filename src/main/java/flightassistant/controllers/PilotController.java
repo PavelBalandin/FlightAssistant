@@ -23,13 +23,11 @@ public class PilotController {
     }
 
     @GetMapping
-    @JsonView(Views.IdProperty.class)
     public List<Pilot> list() {
         return pilotRepository.findAll();
     }
 
     @GetMapping("{id}")
-    @JsonView(Views.IdProperty.class)
     public Pilot getOne(@PathVariable("id") Pilot pilot) {
         if (pilot != null) {
             return pilot;
