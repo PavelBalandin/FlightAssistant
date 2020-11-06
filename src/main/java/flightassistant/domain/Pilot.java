@@ -1,8 +1,7 @@
 package flightassistant.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -14,10 +13,6 @@ import java.util.Set;
 @Table
 @ToString(of = {"id", "name"})
 @EqualsAndHashCode(of = {"id"})
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
 public class Pilot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +23,7 @@ public class Pilot {
 
     @JsonView(Views.FullMessage.class)
     @ManyToMany(mappedBy = "pilots")
+    @JsonIgnore
     private Set<Flight> flights = new HashSet<>();
 
     public Long getId() {

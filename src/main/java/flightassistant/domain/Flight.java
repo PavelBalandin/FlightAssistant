@@ -16,10 +16,6 @@ import java.util.Set;
 @Table
 @ToString(of = {"id", "price", "numberOfSeats", "pilots", "plane", "startPoint", "endPoint"})
 @EqualsAndHashCode(of = {"id"})
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
 public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
