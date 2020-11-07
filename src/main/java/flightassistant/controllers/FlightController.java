@@ -6,8 +6,8 @@ import flightassistant.service.FlightService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -17,57 +17,50 @@ public class FlightController {
     private final FlightRepository flightRepository;
     private final FlightService flightService;
 
+    @Autowired
     public FlightController(FlightRepository flightRepository, FlightService flightService) {
         this.flightRepository = flightRepository;
         this.flightService = flightService;
     }
 
-    @Autowired
-
     @GetMapping
-    public List<Flight> list() {
-        return flightRepository.findAll();
+    public ResponseEntity<List<Flight>> getFlightList() {
+        return new ResponseEntity<>(flightRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public Flight getOne(@PathVariable("id") Flight flight) {
-        if (flight != null) {
-            return flight;
-        } else {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, Flight.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<Flight> getFlightById(@PathVariable("id") Flight flight) {
+        if (flight == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(flight, HttpStatus.OK);
     }
 
     @PostMapping
-    public Flight create(@RequestBody Flight flight) {
+    public ResponseEntity<Flight> createFlight(@RequestBody Flight flight) {
+        if (flightService.create(flight) == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        return flightService.create(flight);
+        return new ResponseEntity<>(flight, HttpStatus.OK);
     }
 
     @PutMapping("{id}")
-    public Flight update(@PathVariable("id") Flight flightFromDb, @RequestBody Flight flight) {
-        try {
-            BeanUtils.copyProperties(flight, flightFromDb, "id");
-            return flightRepository.save(flightFromDb);
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, Flight.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<Flight> updateFlight(@PathVariable("id") Flight flightFromDb, @RequestBody Flight flight) {
+        if (flightFromDb == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        BeanUtils.copyProperties(flight, flightFromDb, "id");
+        flightRepository.save(flightFromDb);
+        return new ResponseEntity<>(flightFromDb, HttpStatus.OK);
     }
 
-
     @DeleteMapping("{id}")
-    public void delete(@PathVariable("id") Flight flight) {
-        if (flight != null) {
-            flightRepository.delete(flight);
-        } else {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, Flight.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<Flight> deleteFlight(@PathVariable("id") Flight flight) {
+        if (flight == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        flightRepository.delete(flight);
+        return new ResponseEntity<>(HttpStatus.OK);
 
     }
 }
