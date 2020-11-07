@@ -5,8 +5,8 @@ import flightassistant.repositories.CityRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,50 +21,42 @@ public class CityController {
     }
 
     @GetMapping
-    public List<City> list() {
-        return cityRepository.findAll();
+    public ResponseEntity<List<City>> getCityList() {
+        return new ResponseEntity<>(cityRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public City getOne(@PathVariable("id") City city) {
-        if (city != null) {
-            return city;
-        } else {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, City.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<City> getCityById(@PathVariable("id") City city) {
+        if (city == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(city, HttpStatus.OK);
     }
 
     @PostMapping
-    public City create(@RequestBody City city) {
-        return cityRepository.save(city);
+    public ResponseEntity<City> createCity(@RequestBody City city) {
+        cityRepository.save(city);
+        return new ResponseEntity<>(city, HttpStatus.OK);
     }
 
     @PutMapping("{id}")
-    public City update(
-            @PathVariable("id") City cityFromDb,
-            @RequestBody City city
-    ) {
-        try {
-            BeanUtils.copyProperties(city, cityFromDb, "id");
-            return cityRepository.save(cityFromDb);
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, City.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<City> updateCity(@PathVariable("id") City cityFromDb, @RequestBody City city) {
+        if (cityFromDb == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        BeanUtils.copyProperties(city, cityFromDb, "id");
+        cityRepository.save(cityFromDb);
+        return new ResponseEntity<>(cityFromDb, HttpStatus.OK);
+
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable("id") City city) {
-        if (city != null) {
-            cityRepository.delete(city);
-        } else {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, City.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<City> deleteCity(@PathVariable("id") City city) {
+        if (city == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
+        cityRepository.delete(city);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
+
 }

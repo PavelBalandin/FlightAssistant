@@ -1,12 +1,12 @@
 package flightassistant.controllers;
 
-import flightassistant.domain.City;
 import flightassistant.domain.MyOrder;
 import flightassistant.repositories.MyOrderRepository;
 import flightassistant.service.MyOrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,48 +25,43 @@ public class MyOrderController {
     }
 
     @GetMapping
-    public List<MyOrder> list() {
-        return myOrderRepository.findAll();
+    public ResponseEntity<List<MyOrder>> getOrderList() {
+        return new ResponseEntity<>(myOrderRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public MyOrder getOne(@PathVariable("id") MyOrder myOrder) {
-        if (myOrder != null) {
-            return myOrder;
-        } else {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, MyOrder.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<MyOrder> getOrderById(@PathVariable("id") MyOrder myOrder) {
+        if (myOrder == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(myOrder, HttpStatus.OK);
     }
 
     @PostMapping
-    public MyOrder create(@RequestBody MyOrder myOrder) {
+    public ResponseEntity<MyOrder> createOrder(@RequestBody MyOrder myOrder) {
+        if (myOrderService.create(myOrder) == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        return myOrderService.create(myOrder);
+        return new ResponseEntity<>(myOrder, HttpStatus.OK);
     }
 
     @PutMapping("{id}")
-    public MyOrder update(@PathVariable("id") MyOrder myOrderFromDb, @RequestBody MyOrder myOrder) {
-        try {
-            BeanUtils.copyProperties(myOrder, myOrderFromDb, "id");
-            return myOrderRepository.save(myOrderFromDb);
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, MyOrder.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<MyOrder> updateOrder(@PathVariable("id") MyOrder myOrderFromDb, @RequestBody MyOrder myOrder) {
+        if (myOrderFromDb == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        BeanUtils.copyProperties(myOrder, myOrderFromDb, "id");
+        myOrderRepository.save(myOrderFromDb);
+        return new ResponseEntity<>(myOrderFromDb, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable("id") MyOrder myOrder) {
-        if (myOrder != null) {
-            myOrderRepository.delete(myOrder);
-        } else {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, MyOrder.class.getSimpleName() + " not found"
-            );
-        }
+    public ResponseEntity<MyOrder> deleteOrder(@PathVariable("id") MyOrder myOrder) {
+        if (myOrder == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        myOrderRepository.delete(myOrder);
+        return new ResponseEntity<>(HttpStatus.OK);
 
     }
 

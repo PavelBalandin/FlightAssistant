@@ -32,7 +32,7 @@ public class FlightService {
             flightRepository.save(flight);
             return flight;
         } else {
-            return null; // {"message": "Error ....."} //
+            return null;
         }
     }
 }
