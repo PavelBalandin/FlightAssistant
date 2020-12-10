@@ -20,11 +20,13 @@ public class PlaneController {
         this.planeRepository = planeRepository;
     }
 
+    @CrossOrigin
     @GetMapping
     public ResponseEntity<List<Plane>> getPlaneList() {
         return new ResponseEntity<>(planeRepository.findAll(), HttpStatus.OK);
     }
 
+    @CrossOrigin
     @GetMapping("{id}")
     public ResponseEntity<Plane> getPlaneById(@PathVariable("id") Plane plane) {
         if (plane == null)
