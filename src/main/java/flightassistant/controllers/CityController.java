@@ -25,6 +25,11 @@ public class CityController {
         return new ResponseEntity<>(cityRepository.findAll(), HttpStatus.OK);
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<List<City>> getPopularCityList() {
+        return new ResponseEntity<>(cityRepository.findPopularCity(), HttpStatus.OK);
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<City> getCityById(@PathVariable("id") City city) {
         if (city == null)
