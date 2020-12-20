@@ -59,6 +59,7 @@ public class FlightController {
         if (flight == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
+        flightService.notifyClient(flight);
         flightRepository.delete(flight);
         return new ResponseEntity<>(HttpStatus.OK);
 
